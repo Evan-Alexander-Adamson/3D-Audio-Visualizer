@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div id="controls">
+        <input type="file" id="audioUpload" accept="audio/*">
+        <audio id="audioPlayer" controls></audio>
+    </div>
+
+    <button id="startAudio">Start Audio Input</button>
+
     <script id="vertexshader" type="x-shader/x-vertex">
         vec3 mod289(vec3 x) {
             return x - floor(x * (1.0 / 289.0)) * 289.0;

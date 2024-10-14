@@ -1,9 +1,10 @@
-import { EffectComposer } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { EffectComposer } from 'https://cdn.skypack.dev/three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'https://cdn.skypack.dev/three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'https://cdn.skypack.dev/three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
 let scene, camera, renderer, mesh, analyser, uniforms, bloomComposer;
 let mouseX = 0, mouseY = 0;
+let audioContext, source;
 
 const params = {
     red: 1.0,
@@ -23,20 +24,6 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.toneMapping = THREE.ReinhardToneMapping;
     document.body.appendChild(renderer.domElement);
-
-    const listener = new THREE.AudioListener();
-    camera.add(listener);
-
-    const sound = new THREE.Audio(listener);
-    const audioLoader = new THREE.AudioLoader();
-    audioLoader.load('track.mp3', function(buffer) {
-        sound.setBuffer(buffer);
-        window.addEventListener('click', function() {
-            sound.play();
-        });
-    });
-
-    analyser = new THREE.AudioAnalyser(sound, 32);
 
     uniforms = {
         u_time: { value: 0.0 },
@@ -71,6 +58,34 @@ function init() {
 
     document.addEventListener('mousemove', onDocumentMouseMove);
     window.addEventListener('resize', onWindowResize);
+
+    // Set up audio context
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Set up file input listener
+    document.getElementById('audioUpload').addEventListener('change', handleFileSelect, false);
+
+    animate();
+}
+
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    const audioPlayer = document.getElementById('audioPlayer');
+    
+    if (file) {
+        const objectURL = URL.createObjectURL(file);
+        audioPlayer.src = objectURL;
+        
+        // Set up audio analyser when the audio is ready to play
+        audioPlayer.oncanplay = function() {
+            if (source) source.disconnect();
+            source = audioContext.createMediaElementSource(audioPlayer);
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 64;
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+        };
+    }
 }
 
 function setupGUI(bloomPass) {
@@ -104,7 +119,13 @@ function animate() {
 
     const time = performance.now() * 0.001;
     uniforms.u_time.value = time;
-    uniforms.u_frequency.value = analyser.getAverageFrequency();
+    
+    if (analyser) {
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(dataArray);
+        const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+        uniforms.u_frequency.value = average;
+    }
 
     camera.position.x += (mouseX - camera.position.x) * 0.05;
     camera.position.y += (-mouseY - camera.position.y) * 0.05;
@@ -114,4 +135,3 @@ function animate() {
 }
 
 init();
-animate();
