@@ -1,7 +1,3 @@
-import { EffectComposer } from 'https://cdn.skypack.dev/three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'https://cdn.skypack.dev/three/examples/jsm/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'https://cdn.skypack.dev/three/examples/jsm/postprocessing/UnrealBloomPass.js';
-
 let scene, camera, renderer, mesh, analyser, uniforms, bloomComposer;
 let mouseX = 0, mouseY = 0;
 let audioContext, source;
