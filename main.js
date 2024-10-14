@@ -1,3 +1,8 @@
+import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js';
+import { EffectComposer } from 'https://threejs.org/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'https://threejs.org/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'https://threejs.org/examples/jsm/postprocessing/UnrealBloomPass.js';
+
 let scene, camera, renderer, mesh, analyser, uniforms, bloomComposer;
 let mouseX = 0, mouseY = 0;
 let audioContext, source;
@@ -40,13 +45,13 @@ function init() {
     mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
-    const renderScene = new THREE.RenderPass(scene, camera);
-    const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight));
+    const renderScene = new RenderPass(scene, camera);
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight));
     bloomPass.threshold = params.threshold;
     bloomPass.strength = params.strength;
     bloomPass.radius = params.radius;
 
-    bloomComposer = new THREE.EffectComposer(renderer);
+    bloomComposer = new EffectComposer(renderer);
     bloomComposer.addPass(renderScene);
     bloomComposer.addPass(bloomPass);
 
