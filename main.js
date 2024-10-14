@@ -1,7 +1,6 @@
 import { EffectComposer } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { OutputPass } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/postprocessing/OutputPass.js';
 
 let scene, camera, renderer, mesh, analyser, uniforms, bloomComposer;
 let mouseX = 0, mouseY = 0;
@@ -22,7 +21,7 @@ function init() {
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ReinhardToneMapping;
     document.body.appendChild(renderer.domElement);
 
     const listener = new THREE.AudioListener();
@@ -30,7 +29,7 @@ function init() {
 
     const sound = new THREE.Audio(listener);
     const audioLoader = new THREE.AudioLoader();
-    audioLoader.load('public/track.mp3', function(buffer) {
+    audioLoader.load('track.mp3', function(buffer) {
         sound.setBuffer(buffer);
         window.addEventListener('click', function() {
             sound.play();
@@ -64,12 +63,9 @@ function init() {
     bloomPass.strength = params.strength;
     bloomPass.radius = params.radius;
 
-    const outputPass = new OutputPass();
-
     bloomComposer = new EffectComposer(renderer);
     bloomComposer.addPass(renderScene);
     bloomComposer.addPass(bloomPass);
-    bloomComposer.addPass(outputPass);
 
     setupGUI(bloomPass);
 
