@@ -7,20 +7,24 @@ canvas {
     display: block;
 }
 
-#controls {
+#startAudio {
     position: absolute;
     top: 10px;
     left: 10px;
     z-index: 100;
-    background-color: rgba(0, 0, 0, 0.5);
     padding: 10px;
-    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
 }
 
-#audioUpload {
-    margin-bottom: 10px;
+#startAudio:hover {
+    background-color: #45a049;
 }
 
-#audioPlayer {
-    width: 300px;
+#startAudio:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
 }

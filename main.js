@@ -62,30 +62,28 @@ function init() {
     // Set up audio context
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
     
-    // Set up file input listener
-    document.getElementById('audioUpload').addEventListener('change', handleFileSelect, false);
+    // Set up start button listener
+    document.getElementById('startAudio').addEventListener('click', startAudio);
 
     animate();
 }
 
-function handleFileSelect(event) {
-    const file = event.target.files[0];
-    const audioPlayer = document.getElementById('audioPlayer');
-    
-    if (file) {
-        const objectURL = URL.createObjectURL(file);
-        audioPlayer.src = objectURL;
-        
-        // Set up audio analyser when the audio is ready to play
-        audioPlayer.oncanplay = function() {
-            if (source) source.disconnect();
-            source = audioContext.createMediaElementSource(audioPlayer);
+function startAudio() {
+    if (audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+        .then(function(stream) {
+            source = audioContext.createMediaStreamSource(stream);
             analyser = audioContext.createAnalyser();
             analyser.fftSize = 64;
             source.connect(analyser);
-            analyser.connect(audioContext.destination);
-        };
-    }
+            document.getElementById('startAudio').disabled = true;
+        })
+        .catch(function(err) {
+            console.error('Error accessing microphone:', err);
+        });
 }
 
 function setupGUI(bloomPass) {
